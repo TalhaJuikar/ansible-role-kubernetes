@@ -4,7 +4,7 @@ Ansible Role: Kubernetes.multi
 
 Ansible role to install and configure kubernetes cluster on 
 RedHat/Debian based systems.
-Intended only for dev and testing purposes.
+Creates a multi-node cluster with one master and multiple worker nodes. Also, optionally installs metallb for load balancing.
 
 This role is tested on the following OS:
 - Rocky Linux 9
@@ -18,6 +18,7 @@ Role Variables
 The following variables are used in this role:
 The default values are set in `defaults/main.yml`.
 ```bash
+copy_kubeconfig: # Default is true. Set to false if you don't want to copy kubeconfig to your local machine.
 kubernetes_version: "" # Default is 1.31
 crio_version: "" # Default is 1.31
 container_runtime: "" # Can be either containerd or crio. Default is crio. 
@@ -25,6 +26,8 @@ kubernetes_pod_network:
   cni:
   cidr: 
   # Default is calico 192.168.0.0/16
+  # Other options are flannel 10.244.0.0/16
+metallb_ip_range: ""
 ```
 You can override these variables in your playbook.
 
