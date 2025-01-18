@@ -32,4 +32,8 @@
 
 - name: Install MetalLB
   include_tasks: metallb.yml
-  when: metallb_ip_range != ""
+  when: metallb_ip_range != "" and "'k8s_master' in group_names"
+
+- name: Print cluster details
+  include_tasks: print.yml
+  when: "'k8s_master' in group_names"

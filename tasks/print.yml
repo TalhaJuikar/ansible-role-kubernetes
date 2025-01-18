@@ -1,0 +1,26 @@
+- name: Gather all nodes
+  command: kubectl get nodes -o wide --no-headers
+  register: all_nodes
+  when: "'k8s_master' in group_names"
+
+- name: Print all nodes
+  debug:
+    msg: "{{ all_nodes.stdout_lines }}"
+  when: "'k8s_master' in group_names"
+
+- name: Print MetalLB IP range
+  debug:
+    msg: "{{ metallb_ip_range }}"
+  when: metallb_ip_range != "" and "'k8s_master' in group_names"
+
+- name: Copy kubeconfig to control node
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: /tmp/kubeconfig.conf
+    flat: yes
+  when: ("'k8s_master' in group_names" and copy_kubeconfig == true)
+
+- name: Notify files copied
+  debug:
+    msg: "Kubeconfig saved to /tmp/kubeconfig.conf on the Ansible control node."
+  when: "'k8s_master' in group_names"

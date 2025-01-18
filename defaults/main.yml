@@ -1,4 +1,5 @@
 ---
+copy_kubeconfig: true
 kubernetes_version: "1.31"
 crio_version: "1.31"
 container_runtime: "crio"
@@ -25,4 +26,4 @@ kubernetes_pod_network:
 
 flannel_manifest : "https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
 calico_manifest : "https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml"
-metallab_manifest : "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml"
+metallb_manifest : "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml"
