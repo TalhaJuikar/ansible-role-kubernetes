@@ -1,0 +1,49 @@
+---
+- name: Install MetalLB
+  block:
+    - name: Check for changes in kube-proxy configmap
+      shell: |
+        kubectl get configmap kube-proxy -n kube-system -o yaml | \
+        sed -e "s/strictARP: false/strictARP: true/" | \
+        kubectl diff -f - -n kube-system
+      register: diff_result
+      failed_when: diff_result.rc != 0 and diff_result.stdout != ""
+    - name: Apply changes to kube-proxy configmap
+      shell: |
+        kubectl get configmap kube-proxy -n kube-system -o yaml | \
+        sed -e "s/strictARP: false/strictARP: true/" | \
+        kubectl apply -f - -n kube-system
+      when: diff_result.rc == 0
+    - name: Install MetalLB
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: metallb-system
+    - name: Create IP address pool
+      k8s:
+        state: present
+        defination:
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: metallb-pool
+            namespace: metallb-system
+          spec:
+            addresses:
+            - {{ metallb_ip_range }}
+    - name: Create L2 Advert
+      k8s:
+        state: present
+        defination:
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: l2-advert
+            namespace: metallb-system
+    - name: Create MetalLB manifest
+      k8s:
+        state: present
+        definition: "{{ metallab_manifest }}"

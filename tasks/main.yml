@@ -29,3 +29,7 @@
 
 - name: Setup Worker Node
   include_tasks: worker-node.yml
+
+- name: Install MetalLB
+  include_tasks: metallb.yml
+  when: metallb_ip_range != ""

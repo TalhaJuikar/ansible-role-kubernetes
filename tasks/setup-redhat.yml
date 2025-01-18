@@ -10,11 +10,12 @@
   selinux:
     state: disabled
 
-- name: Diable firewalld
+- name: Disable firewalld
   service:
     name: firewalld
     state: stopped
     enabled: no
+  ignore_errors: true
 
 - name: Add Kubernetes repo
   yum_repository:
