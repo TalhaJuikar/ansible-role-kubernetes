@@ -18,8 +18,8 @@ Role Variables
 The following variables are used in this role:
 The default values are set in `defaults/main.yml`.
 ```bash
-kubernetes_version: "" # Default is 1.30
-crio_version: "" # Default is 1.30
+kubernetes_version: "" # Default is 1.31
+crio_version: "" # Default is 1.31
 container_runtime: "" # Can be either containerd or crio. Default is crio. 
 kubernetes_pod_network:
   cni:
@@ -50,6 +50,12 @@ Example Playbook
   become: true
   roles:
     - TalhaJuikar.kubernetes
+  vars:
+    kubernetes_version: "1.30"
+    container_runtime: "containerd"
+    kubernetes_pod_network:
+      cni: 'flannel'
+      cidr: '10.244.0.0/16'
 ```
 
 Example Inventory
