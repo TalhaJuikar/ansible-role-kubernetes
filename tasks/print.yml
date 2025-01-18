@@ -1,0 +1,57 @@
+- name: Gather control plane nodes
+  command: kubectl get nodes -o wide --selector='node-role.kubernetes.io/master' --no-headers
+  register: control_plane_nodes
+  when: "'k8s_master' in group_names"
+
+- name: Gather worker nodes
+  command: kubectl get nodes -o wide --selector='!node-role.kubernetes.io/master' --no-headers
+  register: worker_nodes
+  when: "'k8s_master' in group_names"
+
+- name: Print control plane nodes
+  debug:
+    msg: "{{ control_plane_nodes.stdout_lines }}"
+  when: "'k8s_master' in group_names"
+
+- name: Print worker nodes
+  debug:
+    msg: "{{ worker_nodes.stdout_lines }}"
+  when: "'k8s_master' in group_names"
+
+- name: Print MetalLB IP range
+  debug:
+    msg: "{{ metallb_ip_range }}"
+  when: metallb_ip_range != "" and "'k8s_master' in group_names"
+
+- name: Save cluster details to file
+  copy:
+    content: |
+      Control Plane Nodes:
+      {{ control_plane_nodes.stdout_lines | join('\n') }}
+
+      Worker Nodes:
+      {{ worker_nodes.stdout_lines | join('\n') }}
+
+      MetalLB IP Range:
+      {{ metallb_ip_range }}
+    dest: /tmp/cluster_details.txt
+  when: "'k8s_master' in group_names"
+
+- name: Copy cluster details to control node
+  fetch:
+    src: /tmp/cluster_details.txt
+    dest: "{{ ansible_env.HOME }}/cluster_details.txt"
+    flat: yes
+  when: ("'k8s_master' in group_names" and copy_cluster_details == true)
+
+- name: Copy kubeconfig to control node
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ ansible_env.HOME }}/new-kubeconfig.conf"
+    flat: yes
+  when: ("'k8s_master' in group_names" and copy_kubeconfig == true)
+
+- name: Notify files copied
+  debug:
+    msg: "Cluster details saved to {{ ansible_env.HOME }}/cluster_details.txt and kubeconfig saved to {{ ansible_env.HOME }}/new-kubeconfig.conf on the Ansible control node."
+  when: "'k8s_master' in group_names"
