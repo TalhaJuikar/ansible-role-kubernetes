@@ -68,9 +68,9 @@
   become: true
 
 - name: Set SystemdCgroup to true
-  lineinfile:
-    path: /etc/containerd/config.toml
-    regexp: '^(\s*)SystemdCgroup\s*=\s*false'
-    line: 'SystemdCgroup = true'
-    state: present
-  notify: restart containerd
+  command: sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+
+- name: Restart containerd service
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
