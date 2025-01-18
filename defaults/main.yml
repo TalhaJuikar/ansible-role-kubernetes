@@ -1,6 +1,5 @@
 ---
 copy_kubeconfig: true
-copy_cluster_details: true
 kubernetes_version: "1.31"
 crio_version: "1.31"
 container_runtime: "crio"
