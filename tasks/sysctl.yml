@@ -1,4 +1,8 @@
-- name: Disable swap and remove entry from /etc/fstab
+- name: Set Hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Disable swap
   command: swapoff -a
 
 - name: remove entry from /etc/fstab

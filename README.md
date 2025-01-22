@@ -66,11 +66,11 @@ Example Inventory
 
 ```ini
 [k8s_master]
-host1
+host1 ansible_host=IP_ADDRESS
 
 [k8s_worker]
-worker1
-worker2
+worker1 ansible_host=IP_ADDRESS
+worker2 ansible_host=IP_ADDRESS
 ```
 
 License
