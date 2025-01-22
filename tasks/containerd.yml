@@ -69,4 +69,8 @@
 
 - name: Set SystemdCgroup to true
   command: sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
-  notify: restart_containerd
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted

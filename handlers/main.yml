@@ -4,9 +4,3 @@
     name: kubelet
     state: restarted
   listen: restart kubelet
-
-- name: Restart containerd
-  ansible.builtin.systemd:
-    name: containerd
-    state: restarted
-  listen: restart_containerd

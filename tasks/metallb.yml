@@ -10,13 +10,16 @@
       shell: |
         kubectl apply -f "{{ metallb_manifest }}"
       when: api_server_check.rc == 0
-    - name: Wait for MetalLB pods to be running
+    - name: Wait for MetalLB controller to be running
       shell: |
         kubectl get pods -n metallb-system -o jsonpath='{.items[*].status.phase}' | grep -qv Running && exit 1 || exit 0
       register: result
       until: result.rc == 0
       retries: 30
       delay: 15
+    - name: Wait for MetalLB pods to be running
+      pause:
+        minutes: 2
       when: api_server_check.rc == 0
     - name: Check for changes in kube-proxy configmap
       shell: |

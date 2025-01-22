@@ -10,7 +10,7 @@ metadata:
     namespace: metallb-system
 spec:
     addresses:
-    - "{{ metallb_ip_range }}"
+    - {{ metallb_ip_range }}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
