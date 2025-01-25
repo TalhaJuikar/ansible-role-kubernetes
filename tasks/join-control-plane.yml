@@ -1,0 +1,27 @@
+---
+- name: Check if first control node is initialized
+  stat: path=/etc/kubernetes/kubelet.conf
+  register: kubelet_conf
+  when: "'k8s_master' in group_names"
+
+- name: Check if the first control node is in Ready state
+  shell: kubectl get nodes | grep -w {{ ansible_hostname }} | grep -w Ready
+  register: master_ready
+  when: "'k8s_master' in group_names"
+
+- name: Get certificate key
+  shell: kubeadm init phase upload-certs --upload-certs 2>/dev/null | tail -n 1
+  register: cert_key
+  when: ("'k8s_master' in group_names" and master_ready.stdout != "")
+
+- name: Get join command from main control plane
+  shell: kubeadm token create --print-join-command
+  register: join_command
+  when: "'k8s_master' in group_names"
+
+- name: Join control plane node to the cluster
+  shell: "{{ hostvars[groups['k8s_master'][0]]['join_command']['stdout'] }} --control-plane --certificate-key {{ cert_key }}"
+  when: 
+    - "'k8s_master_others' in group_names"
+    - not kubelet_conf.stat.exists
+    - master_ready.stdout != ""
