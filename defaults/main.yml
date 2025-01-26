@@ -4,6 +4,10 @@ kubernetes_version: "1.31"
 crio_version: "1.31"
 container_runtime: "crio"
 metallb_ip_range: ""
+
+VIP: ""
+KVVERSION: "v0.8.9"
+
 kubernetes_packages:
   - name: kubelet
     state: present
