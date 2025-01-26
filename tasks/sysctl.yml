@@ -36,3 +36,7 @@
 
 - name: Apply sysctl parameters without rebooting
   command: sysctl --system
+
+- name: Set Network Interface
+  set_fact:
+    interface: "{{ ansible_default_ipv4.interface }}"

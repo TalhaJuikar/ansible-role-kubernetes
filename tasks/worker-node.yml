@@ -1,8 +1,18 @@
 ---
+- name: Waiting for all control plane nodes to be ready
+  pause:
+    minutes: 2
+
 - name: Get join command from main control plane
   shell: kubeadm token create --print-join-command
   register: join_command
   when: "'k8s_master' in group_names"
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+  when: "'k8s_worker' in group_names"
 
 - name: Check if node has been initialized
   stat:

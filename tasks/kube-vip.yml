@@ -1,0 +1,7 @@
+---
+- name: Install Kube-VIP
+  block:
+    - name: Copy kube-vip manifest
+      template:
+        src: kube-vip.yaml.j2
+        dest: /etc/kubernetes/manifests/kube-vip.yaml

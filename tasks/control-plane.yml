@@ -4,37 +4,51 @@
     path: /etc/kubernetes/kubelet.conf
   register: kubelet_conf
 
-- name: Initialize Kubernetes with kubeadm
-  command: kubeadm init --pod-network-cidr={{ kubernetes_pod_network.cidr }}
-  when: not kubelet_conf.stat.exists
+- name: Single Control Plane init
+  block:
+  - name: Initialize Kubernetes with kubeadm on the first master node
+    command: kubeadm init --pod-network-cidr={{ kubernetes_pod_network.cidr }}
+  when: (not kubelet_conf.stat.exists) and (VIP == "")
 
-- name: Ensure .kube directory exists.
-  file:
-    path: ~/.kube
-    state: directory
-    mode: 0755
+- name: HA Cluster init first node
+  block:
+  - name: Install Kube-VIP
+    include_tasks: kube-vip.yml
+  - name: Restart containerd
+    ansible.builtin.systemd:
+      name: containerd
+      state: restarted
+  - name: Kube VIP Issue 684 workaround
+    lineinfile:
+      regexp: "path: /etc/kubernetes/admin.conf"
+      line: "      path: /etc/kubernetes/super-admin.conf"
+      path: /etc/kubernetes/manifests/kube-vip.yaml
+  - name: restart kubelet
+    ansible.builtin.systemd:
+      name: kubelet
+      state: restarted
+  - name: Initialize Kubernetes with kubeadm with VIP on the first master node
+    command: kubeadm init --pod-network-cidr={{ kubernetes_pod_network.cidr }} --control-plane-endpoint={{ VIP }} --upload-certs
+  - name: Revert Kube VIP Issue 684 workaround
+    lineinfile:
+      regexp: "path: /etc/kubernetes/super-admin.conf"
+      line: "      path: /etc/kubernetes/admin.conf" # Spaces are required for indentation
+      path: /etc/kubernetes/manifests/kube-vip.yaml
+  when: (not kubelet_conf.stat.exists) and (VIP != "")
 
-- name: Symlink the kubectl admin.conf to ~/.kube/conf.
-  file:
-    src: /etc/kubernetes/admin.conf
-    dest: ~/.kube/config
-    state: link
-    mode: 0644
+- name: Copy the kubeconfig file to the user's home directory
+  block:
+  - name: Ensure .kube directory exists.
+    file:
+      path: ~/.kube
+      state: directory
+      mode: 0755
+  - name: Symlink the kubectl admin.conf to ~/.kube/conf.
+    file:
+      src: /etc/kubernetes/admin.conf
+      dest: ~/.kube/config
+      state: link
+      mode: 0644
 
-- name: Configure Flannel networking.
-  command: "kubectl apply -f {{ flannel_manifest }}"
-  register: flannel_result
-  changed_when: "'created' in flannel_result.stdout"
-  when: kubernetes_pod_network.cni == 'flannel'
-  until: flannel_result is not failed
-  retries: 12
-  delay: 5
-
-- name: Configure Calico networking.
-  command: "kubectl apply -f {{ calico_manifest }}"
-  register: calico_result
-  changed_when: "'created' in calico_result.stdout"
-  when: kubernetes_pod_network.cni == 'calico'
-  until: calico_result is not failed
-  retries: 12
-  delay: 5
+- name: Install CNI
+  include_tasks: install-cni.yml

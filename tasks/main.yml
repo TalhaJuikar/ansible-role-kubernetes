@@ -23,16 +23,20 @@
 - name: Install Kubernetes packages
   include_tasks: Install-packages.yml
 
-- name: Setup Control Plane
+- name: Initialize Kubernetes on first master node
   include_tasks: control-plane.yml
   when: "'k8s_master' in group_names"
+
+- name: Join other master nodes
+  include_tasks: join-control-plane.yml
+  when: ("'k8s_master_other' in group_names") and (VIP != "")
 
 - name: Setup Worker Node
   include_tasks: worker-node.yml
 
 - name: Install MetalLB
   include_tasks: metallb.yml
-  when: metallb_ip_range != "" and "'k8s_master' in group_names"
+  when: (metallb_ip_range != "") and ("'k8s_master' in group_names")
 
 - name: Print cluster details
   include_tasks: print.yml

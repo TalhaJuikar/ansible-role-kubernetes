@@ -1,0 +1,19 @@
+---
+- name: Install CNI
+  block:
+      - name: Configure Flannel networking.
+        command: "kubectl apply -f {{ flannel_manifest }}"
+        register: flannel_result
+        changed_when: "'created' in flannel_result.stdout"
+        when: kubernetes_pod_network.cni == 'flannel'
+        until: flannel_result is not failed
+        retries: 12
+        delay: 5
+      - name: Configure Calico networking.
+        command: "kubectl apply -f {{ calico_manifest }}"
+        register: calico_result
+        changed_when: "'created' in calico_result.stdout"
+        when: kubernetes_pod_network.cni == 'calico'
+        until: calico_result is not failed
+        retries: 12
+        delay: 5
