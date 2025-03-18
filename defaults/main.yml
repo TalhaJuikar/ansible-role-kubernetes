@@ -1,7 +1,7 @@
 ---
 copy_kubeconfig: true
-kubernetes_version: "1.31"
-crio_version: "1.31"
+kubernetes_version: "1.32"
+crio_version: "1.32"
 container_runtime: "crio"
 metallb_ip_range: ""
 
