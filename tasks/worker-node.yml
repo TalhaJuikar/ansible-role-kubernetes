@@ -12,7 +12,9 @@
   ansible.builtin.systemd:
     name: containerd
     state: restarted
-  when: "'k8s_worker' in group_names"
+  when:
+    - "'k8s_worker' in group_names"
+    - container_runtime == 'containerd'
 
 - name: Check if node has been initialized
   stat:
