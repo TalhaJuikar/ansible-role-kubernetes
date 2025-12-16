@@ -6,7 +6,7 @@ container_runtime: "crio"
 metallb_ip_range: ""
 
 VIP: ""
-KVVERSION: "v0.8.9"
+KVVERSION: "v1.0.2"
 
 kubernetes_packages:
   - name: kubelet
