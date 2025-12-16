@@ -18,9 +18,9 @@ The following variables are used in this role:
 The default values are set in `defaults/main.yml`.
 ```bash
 copy_kubeconfig: # Default is true. Set to false if you don't want to copy kubeconfig to your local machine.
-kubernetes_version: "" # Default is 1.31
-crio_version: "" # Default is 1.31
-container_runtime: "" # Can be either containerd or crio. Default is crio. 
+kubernetes_version: "" # Default is 1.34
+crio_version: "" # Default is 1.34
+container_runtime: "" # Can be either containerd or crio. Default is containerd. 
 kubernetes_pod_network:
   cni:
   cidr: 
@@ -67,7 +67,7 @@ Example Playbook
   roles:
     - TalhaJuikar.kubernetes
   vars:
-    kubernetes_version: "1.30"
+    kubernetes_version: "1.34"
     container_runtime: "containerd"
     VIP: "192.168.200.50"
     metallb_ip_range: "192.168.203.50-192.168.203.60"
@@ -99,4 +99,4 @@ MIT
 Author Information
 ------------------
 
-For more information, visit [talhajuikar.cloud](https://talhajuikar.cloud).
+For more information, visit [talhajuikar.com](https://talhajuikar.com).
